@@ -8,19 +8,25 @@
     --rule-border: #b8daff;
 }
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: "Poppins", sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    margin: 0;
-    padding: 0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 .container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
@@ -36,6 +42,13 @@ header {
     padding: 2rem 0;
     margin-bottom: 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+header .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 h1 {
@@ -81,6 +94,7 @@ h1 {
     justify-content: center;
     gap: 1rem;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 .start-button {
@@ -112,7 +126,7 @@ h2 {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+    overflow-x: auto;
     margin-top: auto;
     border: 1px solid var(--border-color);
 }
@@ -156,11 +170,13 @@ footer {
     padding: 2rem 0;
     margin-top: 2rem;
     box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 2rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -205,14 +221,17 @@ footer a:hover {
 }
 
 @media (max-width: 768px) {
-    .game-options {
-        flex-direction: column;
-        align-items: center;
+    .container {
+        padding: 1rem;
     }
 
-    .start-button {
-        width: 80%;
-        max-width: 300px;
+    header .header-content,
+    .footer-content {
+        padding: 0 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
     }
 
     .rule-section {
@@ -221,6 +240,21 @@ footer a:hover {
 
     .rule-content {
         font-size: 1.1rem;
+    }
+
+    .game-options {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .start-button {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    th,
+    td {
+        padding: 0.75rem;
     }
 
     footer p,

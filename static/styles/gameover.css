@@ -18,6 +18,7 @@ body {
     min-height: 100vh;
 }
 
+/* Shared container styling for the game-over and leaderboard sections */
 .container {
     background-color: white;
     border-radius: 20px;
@@ -40,6 +41,7 @@ h2 {
     color: var(--secondary-color);
     font-size: 1.8rem;
     margin-top: 2rem;
+    text-align: center;
 }
 
 p {
@@ -101,10 +103,9 @@ button:active {
     box-shadow: 0 2px 4px var(--shadow-color);
 }
 
+/* Leaderboard specific styling */
 #leaderboard {
-    margin-top: 2rem;
-    width: 90%;
-    max-width: 600px;
+    overflow-x: auto;
 }
 
 table {
@@ -151,4 +152,22 @@ tr:hover {
 
 .fade-in {
     animation: fadeIn 0.5s ease-out;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem;
+        width: 95%;
+    }
+
+    input[type="text"] {
+        width: 100%;
+    }
+
+    table,
+    th,
+    td {
+        font-size: 0.9rem;
+    }
 }

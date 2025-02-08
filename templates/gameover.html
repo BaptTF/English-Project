@@ -2,14 +2,15 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game Over - English Words Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/gameover.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/gameover.css') }}">
 </head>
 
 <body>
+    <!-- Game Over Container -->
     <div class="container fade-in">
         <h1>Game Over</h1>
         <p>You lose! Your score: <strong>{{ score }}</strong> Your time is: <strong>{{ duration }}</strong></p>
@@ -20,11 +21,14 @@
             <input type="text" id="name" name="name" required>
             <button type="submit">Submit Score</button>
         </form>
-        <button onclick="window.location.href='/';" class="fade-in">Play Again</button>
+        <button onclick="window.location.href='/'" class="fade-in">Play Again</button>
     </div>
 
-    <h2>Leaderboard</h2>
-    <div id="leaderboard" class="fade-in"></div>
+    <!-- Leaderboard Container -->
+    <div id="leaderboard-container" class="container fade-in">
+        <h2>Leaderboard</h2>
+        <div id="leaderboard"></div>
+    </div>
 
     <script src="/static/updateLeaderboard.js"></script>
 </body>

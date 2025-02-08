@@ -109,6 +109,8 @@ def submit_score():
 
 @app.route("/gameover")
 def gameover():
+    if "duration_seconds" not in session:
+        return redirect(url_for("home"))
     format_duration = format_time(session["duration_seconds"])
     return render_template(
         "gameover.html", score=session["score"], duration=format_duration

@@ -7,19 +7,22 @@
     <title>English Game - Home Page</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/index.css') }}">
+    <script src="/static/updateLeaderboard.js"></script>
 </head>
 
 <body>
     <header>
-        <h1 class="fade-in">Welcome to the English Game</h1>
+        <div class="header-content">
+            <h1 class="fade-in">Welcome to the Awesome Game</h1>
+        </div>
     </header>
 
     <div class="container">
         <section class="rule-section fade-in">
-            <h2>Rules</h2>
+            <h2>Important Rule</h2>
             <div class="rule-content">
-                <p>There is one fake English word and two real English words. </p>
-                <p>You need to find the fake one as fast as possible.</p>
+                <p>The game is simple: there is one fake English word and two real English words. You need to find the
+                    fake one as fast as possible.</p>
             </div>
         </section>
 
@@ -49,41 +52,6 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        function updateLeaderboard() {
-            fetch('/scores')
-                .then(response => response.json())
-                .then(data => {
-                    const leaderboard = document.getElementById('leaderboard');
-                    const table = document.createElement('table');
-
-                    const headerRow = document.createElement('tr');
-                    ['Rank', 'Player', 'Difficulty', 'Score', 'Duration'].forEach(headerText => {
-                        const header = document.createElement('th');
-                        header.textContent = headerText;
-                        headerRow.appendChild(header);
-                    });
-                    table.appendChild(headerRow);
-
-                    data.slice(0, 10).forEach((score, index) => {
-                        const row = document.createElement('tr');
-                        [index + 1, score.username, score.difficulty, score.score, score.duration].forEach(text => {
-                            const cell = document.createElement('td');
-                            cell.textContent = text;
-                            row.appendChild(cell);
-                        });
-                        table.appendChild(row);
-                    });
-
-                    leaderboard.innerHTML = '';
-                    leaderboard.appendChild(table);
-                })
-                .catch(error => console.error('Error fetching scores:', error));
-        }
-
-        updateLeaderboard();
-    </script>
 </body>
 
 </html>
