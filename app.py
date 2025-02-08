@@ -109,11 +109,22 @@ def submit_score():
 
 @app.route("/gameover")
 def gameover():
-    if "duration_seconds" not in session:
+    if (
+        "duration_seconds" not in session
+        or "score" not in session
+        or "wrong_word" not in session
+    ):
         return redirect(url_for("home"))
     format_duration = format_time(session["duration_seconds"])
+    if session["wrong_word"] in session["fake_words"]:
+        session["fake_words"].remove(session["wrong_word"])
     return render_template(
-        "gameover.html", score=session["score"], duration=format_duration
+        "gameover.html",
+        score=session["score"],
+        wrong_word=session["wrong_word"],
+        fake_word=session["fake_words"][0],
+        correct_word=session["real_words"][0],
+        duration=format_duration,
     )
 
 
@@ -130,6 +141,7 @@ def submit_word():
         session["score"]
         if "start_time" in session:
             session["duration_seconds"] = time.time() - session["start_time"]
+            session["wrong_word"] = submitted_word
             app.logger.debug(session["duration_seconds"])
             session.pop("start_time")
         else:
@@ -156,27 +168,27 @@ def scores():
     )
     return [score.to_dict() for score in scores]
 
+
 @app.route("/scoresFull")
 def scoresFull():
-    scores = (
-        session_db.query(Score)
-        .order_by(
-            (
-                (Score.score / Score.duration_seconds)
-                * case(
-                    (Score.difficulty == "hard", 1.5),
-                    (Score.difficulty == "normal", 1),
-                    (Score.difficulty == "easy", 0.5),
-                    else_=1,
-                )
-            ).desc()
-        )
+    scores = session_db.query(Score).order_by(
+        (
+            (Score.score / Score.duration_seconds)
+            * case(
+                (Score.difficulty == "hard", 1.5),
+                (Score.difficulty == "normal", 1),
+                (Score.difficulty == "easy", 0.5),
+                else_=1,
+            )
+        ).desc()
     )
     return [score.to_dict() for score in scores]
+
 
 @app.route("/leaderboard")
 def leaderboard():
     return render_template("leaderboard.html")
+
 
 @app.route("/count")
 def count():

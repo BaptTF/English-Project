@@ -14,6 +14,14 @@
     <div class="container fade-in">
         <h1>Game Over</h1>
         <p>You lose! Your score: <strong>{{ score }}</strong> Your time is: <strong>{{ duration }}</strong></p>
+        <p>The word you chose was: <strong>{{ wrong_word }}</strong></a></p>
+        <p>Correct word was: <strong>{{ correct_word }}</strong></p>
+        <p>The fake word was: <strong>{{ fake_word }}</strong></p>
+        <p><a href="https://www.wordreference.com/definition/{{wrong_word}}">WordReference</a>
+                    <a href="https://www.merriam-webster.com/dictionary/{{wrong_word}}">Merriam-Webster</a>
+                            <a href="https://www.google.com/search?q=define+{{wrong_word}}">Google Search</a>
+
+        </p>
 
         <h2>Submit Your Score</h2>
         <form action="/submit_score" method="post">
