@@ -124,7 +124,8 @@ def gameover():
         score=session["score"],
         wrong_word=session["wrong_word"],
         fake_word=session["fake_words"][0],
-        correct_word=session["real_words"][0],
+        real_word=session["real_words"][0],
+        difficulty=session["difficulty"],
         duration=format_duration,
     )
 

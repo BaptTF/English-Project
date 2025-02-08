@@ -138,6 +138,21 @@ tr:hover {
     background-color: #f0f0f0;
 }
 
+.wrong-word {
+    color: red;
+    text-decoration: line-through;
+}
+
+.real-word {
+    color: red;
+}
+
+.fake-word {
+    color: green;
+}
+
+
+
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -15,12 +15,14 @@
     <div class="container fade-in">
         <h1>Game Over</h1>
         <p>You lose! Your score: <strong>{{ score }}</strong> Your time is: <strong>{{ duration }}</strong></p>
-        <p>The word you chose was: <strong>{{ wrong_word }}</strong></a></p>
-        <p>Correct word was: <strong>{{ correct_word }}</strong></p>
-        <p>The fake word was: <strong>{{ fake_word }}</strong></p>
+        <p>
+            Chosen: <strong class="wrong-word">{{ wrong_word }}</strong>
+            Real: <strong class="real-word">{{ real_word }}</strong>
+            Fake: <strong class="fake-word">{{ fake_word }}</strong>
+        </p>
         <p><a href="https://www.wordreference.com/definition/{{wrong_word}}">WordReference</a>
-                    <a href="https://www.merriam-webster.com/dictionary/{{wrong_word}}">Merriam-Webster</a>
-                            <a href="https://www.google.com/search?q=define+{{wrong_word}}">Google Search</a>
+            <a href="https://www.merriam-webster.com/dictionary/{{wrong_word}}">Merriam-Webster</a>
+            <a href="https://www.google.com/search?q=define+{{wrong_word}}">Google Search</a>
 
         </p>
 
@@ -30,7 +32,8 @@
             <input type="text" id="name" name="name" required>
             <button type="submit">Submit Score</button>
         </form>
-        <button onclick="window.location.href='/'" class="fade-in">Play Again</button>
+        <button onclick="window.location.href='/game/{{difficulty}}'" class="fade-in">Play Again</button>
+        <button onclick="window.location.href='/'" class="fade-in">Go to Home</button>
     </div>
 
     <!-- Leaderboard Container -->
