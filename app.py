@@ -7,10 +7,13 @@ from utils import format_time
 import fake_word_generator
 from sqlalchemy import case, create_engine
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
-app.secret_key = "BAD_SECRET_KEY"
+load_dotenv()
+app.secret_key = os.getenv("ENGLISH_PROJECT_SECRET_KEY", "BAD_SECRET_KEY")
 
 word_set = fake_word_generator.load_word_list("words_alpha.txt")
 # Create a Markov chain with the word list and order 3
