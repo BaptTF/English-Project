@@ -113,11 +113,12 @@ def gameover():
         "duration_seconds" not in session
         or "score" not in session
         or "wrong_word" not in session
+        or "real_words" not in session
     ):
         return redirect(url_for("home"))
     format_duration = format_time(session["duration_seconds"])
-    if session["wrong_word"] in session["fake_words"]:
-        session["fake_words"].remove(session["wrong_word"])
+    if session["wrong_word"] in session["real_words"]:
+        session["real_words"].remove(session["wrong_word"])
     return render_template(
         "gameover.html",
         score=session["score"],
@@ -135,9 +136,10 @@ def submit_word():
     submitted_word = data["word"]
     if submitted_word in session["fake_words"]:
         session["score"] += 1
+        session.pop("fake_words")
         shuffle_words_difficulty()
         return {"score": session["score"]}
-    else:
+    elif submitted_word in session["real_words"]:
         session["score"]
         if "start_time" in session:
             session["duration_seconds"] = time.time() - session["start_time"]
@@ -147,6 +149,8 @@ def submit_word():
         else:
             session["duration_seconds"] = 0
         return {"score": session["score"], "gameover": True}
+    else:
+        return {"error": "Invalid word"}, 400
 
 
 @app.route("/scores")
