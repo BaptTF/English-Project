@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Words Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/game.css') }}">
+</head>
+
+<body>
+    <div class="container fade-in">
+        <h1>English Words Game</h1>
+        <div class="word-count">
+            Words Collected: <span id="wordCount">0</span>
+        </div>
+        <div class="duration">
+            Timer: <span id="timer">Loading Timer...</span>
+        </div>
+        <div id="wordContainer">
+            <p>Loading words...</p>
+        </div>
+    </div>
+    <script src="/static/game.js"></script>
+</body>
+
+</html>

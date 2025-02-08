@@ -1,0 +1,154 @@
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #f39c12;
+    --background-color: #f0f8ff;
+    --text-color: #333;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    padding: 2rem;
+    margin-top: 2rem;
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+}
+
+h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px var(--shadow-color);
+}
+
+h2 {
+    color: var(--secondary-color);
+    font-size: 1.8rem;
+    margin-top: 2rem;
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+label {
+    font-weight: 600;
+}
+
+input[type="text"] {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 25px;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: var(--secondary-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px var(--shadow-color);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+#leaderboard {
+    margin-top: 2rem;
+    width: 90%;
+    max-width: 600px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th,
+td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f0f0f0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
