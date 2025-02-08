@@ -138,7 +138,7 @@ def submit_word():
 
 
 @app.route("/scores")
-def leaderboard():
+def scores():
     scores = (
         session_db.query(Score)
         .order_by(
@@ -156,6 +156,27 @@ def leaderboard():
     )
     return [score.to_dict() for score in scores]
 
+@app.route("/scoresFull")
+def scoresFull():
+    scores = (
+        session_db.query(Score)
+        .order_by(
+            (
+                (Score.score / Score.duration_seconds)
+                * case(
+                    (Score.difficulty == "hard", 1.5),
+                    (Score.difficulty == "normal", 1),
+                    (Score.difficulty == "easy", 0.5),
+                    else_=1,
+                )
+            ).desc()
+        )
+    )
+    return [score.to_dict() for score in scores]
+
+@app.route("/leaderboard")
+def leaderboard():
+    return render_template("leaderboard.html")
 
 @app.route("/count")
 def count():
