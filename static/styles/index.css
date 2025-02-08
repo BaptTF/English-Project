@@ -1,6 +1,7 @@
 :root {
     --primary-color: #4a90e2;
     --secondary-color: #f39c12;
+    --alert-color: #dc3545;
     --background-color: #f0f4f8;
     --text-color: #333;
     --border-color: #d1d1d1;
@@ -74,7 +75,7 @@ h1 {
 }
 
 .rule-section h2 {
-    color: var(--primary-color);
+    color: var(--alert-color);
     font-size: 1.8rem;
     margin-bottom: 1rem;
 }
