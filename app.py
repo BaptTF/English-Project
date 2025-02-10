@@ -5,7 +5,7 @@ from Score import Score
 from Base import Base
 from utils import format_time
 import fake_word_generator
-from sqlalchemy import case, create_engine
+from sqlalchemy import case, create_engine, func
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
@@ -164,7 +164,7 @@ def scores():
         session_db.query(Score)
         .order_by(
             (
-                (Score.score / Score.duration_seconds)
+                (Score.score / func.log(Score.duration_seconds))
                 * case(
                     (Score.difficulty == "hard", 1.5),
                     (Score.difficulty == "normal", 1),
@@ -182,7 +182,7 @@ def scores():
 def scoresFull():
     scores = session_db.query(Score).order_by(
         (
-            (Score.score / Score.duration_seconds)
+            (Score.score / func.log(Score.duration_seconds))
             * case(
                 (Score.difficulty == "hard", 1.5),
                 (Score.difficulty == "normal", 1),
