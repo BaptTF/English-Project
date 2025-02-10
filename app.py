@@ -138,6 +138,8 @@ def gameover():
 def submit_word():
     data = request.get_json()
     submitted_word = data["word"]
+    if "start_time" not in session:
+        return {"error": "Game not started"}, 400
     if submitted_word in session["fake_words"]:
         session["score"] += 1
         shuffle_words_difficulty()

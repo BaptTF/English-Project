@@ -4,6 +4,7 @@
     --background-color: #f0f8ff;
     --text-color: #333;
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --correct-color: #2ecc71;
 }
 
 body {
@@ -44,6 +45,22 @@ h1 {
     font-weight: 600;
 }
 
+#wordCount {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+#wordCount.update-animation {
+    transform: scale(2.5);
+}
+
+.duration {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 #wordContainer {
     display: flex;
     flex-wrap: wrap;
@@ -80,6 +97,31 @@ h1 {
     box-shadow: 0 2px 4px var(--shadow-color);
 }
 
+@keyframes correctAnswer {
+    0% {
+        transform: scale(1);
+        background-color: var(--primary-color);
+    }
+
+    50% {
+        transform: scale(1.1);
+        background-color: var(--correct-color);
+    }
+
+    100% {
+        transform: scale(1);
+        background-color: var(--primary-color);
+    }
+}
+
+.correct-answer {
+    animation: correctAnswer 0.5s ease-in-out;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -92,6 +134,17 @@ h1 {
     }
 }
 
-.fade-in {
-    animation: fadeIn 0.5s ease-out;
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .word {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
 }

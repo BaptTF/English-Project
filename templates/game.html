@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="container fade-in">
+    <div class="container">
         <h1>English Words Game</h1>
         <div class="word-count">
             Words Collected: <span id="wordCount">0</span>
@@ -23,7 +23,7 @@
             <p>Loading words...</p>
         </div>
     </div>
-    <script src="/static/game.js"></script>
+    <script src="{{ url_for('static', filename='game.js') }}"></script>
 </body>
 
 </html>
