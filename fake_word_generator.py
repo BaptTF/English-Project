@@ -1,5 +1,7 @@
-import random
 from collections import defaultdict
+from collections.abc import Callable
+import ctypes
+import random
 
 
 class MarkovChain:
@@ -10,7 +12,25 @@ class MarkovChain:
         self.order = order
         self.transitions = defaultdict(list)
         self.word_set = word_set
+        # Load the C library
+        self.markov_lib = ctypes.CDLL("./fake_word_generator_lib.so")
+        # Set the argument types.
+        self.markov_lib.load_transitions_from_python.argtypes = [
+            ctypes.POINTER(ctypes.c_char_p),  # states array
+            ctypes.POINTER(ctypes.c_char_p),  # transitions array
+            ctypes.c_int                      # number of entries
+        ]
+        self.markov_lib.load_wordset_from_python.argtypes = [
+            ctypes.POINTER(ctypes.c_char_p),  # word set array
+            ctypes.c_int                      # number of words
+        ]
+        # Note: Use POINTER(ctypes.c_char) for a mutable buffer.
+        self.markov_lib.generate_word.argtypes = [ctypes.POINTER(ctypes.c_char)]
+        self.markov_lib.generate_word.restype = None
         self.build_transitions(word_set)
+        self.load_markov_into_c()
+        # Load the same real word set into C so that generated words not in this set are considered fake.
+        self.load_wordset_into_c(word_set)
 
     def build_transitions(self, word_set: set):
         """
@@ -41,17 +61,44 @@ class MarkovChain:
         # Remove the start markers and return the generated word
         return word[self.order :]
 
-    def generated_fake_word(self):
+    def generated_fake_word(self, generate_word_func: Callable[[int], str] = generate_word):
         """
         Generate a fake word that is not in the input word list.
         """
         fake_word_in_word_list = True
         while fake_word_in_word_list:
-            fake_word = self.generate_word()
+            fake_word = generate_word_func()
             if fake_word not in self.word_set:
                 fake_word_in_word_list = False
         return fake_word
 
+    def export_transitions(self):
+        """
+        Convert transitions into C-friendly format:
+        - states: list of strings
+        - transitions: list of concatenated possible next characters
+        """
+        states = list(self.transitions.keys())
+        transitions = ["".join(chars) for chars in self.transitions.values()]
+        return states, transitions
+
+    def generate_word_from_c(self):
+        buffer = ctypes.create_string_buffer(10 + 1)
+        self.markov_lib.generate_word(buffer)
+        return buffer.value.decode("utf-8")
+
+    def load_markov_into_c(self):
+        states, transitions = self.export_transitions()
+        states_c = (ctypes.c_char_p * len(states))(*[s.encode("utf-8") for s in states])
+        transitions_c = (ctypes.c_char_p * len(transitions))(
+            *[t.encode("utf-8") for t in transitions]
+        )
+        self.markov_lib.load_transitions_from_python(states_c, transitions_c, len(states))
+
+    def load_wordset_into_c(self, word_set: set):
+        words = list(word_set)
+        words_c = (ctypes.c_char_p * len(words))(*[w.encode("utf-8") for w in words])
+        self.markov_lib.load_wordset_from_python(words_c, len(words))
 
 def load_word_list(file_path: str):
     """
@@ -73,4 +120,10 @@ def fake_and_real_word(
 
 
 if __name__ == "__main__":
-    print(fake_and_real_word(2, 1, 3))
+
+    word_set = load_word_list("words_alpha.txt")
+    mc = MarkovChain(word_set, order=3)
+
+    for _ in range(5):
+        print("C generated:", mc.generate_fake_word_from_c())
+        print("Python generated:", mc.generated_fake_word())
