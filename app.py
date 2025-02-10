@@ -143,7 +143,7 @@ def submit_word():
         session["score"] += 1
         session.pop("fake_words")
         shuffle_words_difficulty()
-        return {"count": session["count"], "shuffle_words": shuffle_words_list()} 
+        return {"count": session["score"], "shuffle_words": shuffle_words_list()}
     elif submitted_word in session["real_words"]:
         session["score"]
         if "start_time" in session:
