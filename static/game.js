@@ -22,7 +22,7 @@ function addEventListeners() {
                     if (data.gameover) {
                         gameOver();
                     } else {
-                        updateCounts();
+                        document.getElementById('wordCount').textContent = data.count;
                         displayWords(data);
                     }
                 })
