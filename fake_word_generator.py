@@ -121,12 +121,12 @@ def load_word_list(file_path: str):
 
 
 def fake_and_real_word(
-    markov_chain: MarkovChain, word_set: set, nb_word: int, nb_fake_word: int
+    markov_chain: MarkovChain, word_set: list, nb_word: int, nb_fake_word: int
 ):
     """
     Generate a list of fake and real words.
     """
-    real_words = random.sample(list(word_set), nb_word)
+    real_words = random.sample(word_set, nb_word)
     fake_words = [markov_chain.generate_word_from_queue() for _ in range(nb_fake_word)]
     return real_words, fake_words
 

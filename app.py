@@ -16,6 +16,7 @@ load_dotenv()
 app.secret_key = os.getenv("ENGLISH_PROJECT_SECRET_KEY", "BAD_SECRET_KEY")
 
 word_set = fake_word_generator.load_word_list("words_alpha.txt")
+word_list = list(word_set)
 # Create a Markov chain with the word list and order 3
 markov_chain_easy = fake_word_generator.MarkovChain(word_set, order=1)
 markov_chain_normal = fake_word_generator.MarkovChain(word_set, order=2)
@@ -75,15 +76,15 @@ def shuffle_words_difficulty():
     match session["difficulty"]:
         case "easy":
             real_words, fake_words = fake_word_generator.fake_and_real_word(
-                markov_chain_easy, word_set, 2, 1
+                markov_chain_easy, word_list, 2, 1
             )
         case "normal":
             real_words, fake_words = fake_word_generator.fake_and_real_word(
-                markov_chain_normal, word_set, 2, 1
+                markov_chain_normal, word_list, 2, 1
             )
         case "hard":
             real_words, fake_words = fake_word_generator.fake_and_real_word(
-                markov_chain_hard, word_set, 2, 1
+                markov_chain_hard, word_list, 2, 1
             )
     session["fake_words"] = fake_words
     session["real_words"] = real_words
