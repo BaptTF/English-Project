@@ -8,10 +8,11 @@ import time
 
 class MarkovChain:
 
-    def __init__(self, word_set: set, order: int = 2, buffer_size: int = 1000):
+    def __init__(self, word_set: set, whole_word_set: set, order: int = 2, buffer_size: int = 1000):
         self.order = order
         self.transitions = defaultdict(list)
         self.word_set = word_set
+        self.whole_word_set = whole_word_set
         self.buffer_size = buffer_size
         self._word_queue = Queue(maxsize=buffer_size)
         self._running = True
@@ -39,7 +40,6 @@ class MarkovChain:
         states = list(self.transitions.keys())
         trans = ["".join(chars) for chars in self.transitions.values()]
 
-
     def _background_refill(self):
         """Background thread that keeps the buffer full"""
         while self._running:
@@ -51,7 +51,7 @@ class MarkovChain:
 
                 with self._lock:
                     new_words = self.generate_multiple_words(to_generate)
-                valid_words = [w for w in new_words if w not in self.word_set]
+                valid_words = [w for w in new_words if w not in self.whole_word_set]
 
                 # Add words to queue without blocking
                 for word in valid_words:
@@ -89,7 +89,7 @@ class MarkovChain:
         fake_word_in_word_list = True
         while fake_word_in_word_list:
             fake_word = self.generate_word()
-            if fake_word not in self.word_set:
+            if fake_word not in self.whole_word_set:
                 fake_word_in_word_list = False
         return fake_word
 
@@ -121,19 +121,19 @@ def load_word_list(file_path: str):
 
 
 def fake_and_real_word(
-    markov_chain: MarkovChain, word_set: list, nb_word: int, nb_fake_word: int
+    markov_chain: MarkovChain, word_list: list, nb_word: int, nb_fake_word: int
 ):
     """
     Generate a list of fake and real words.
     """
-    real_words = random.sample(word_set, nb_word)
+    real_words = random.sample(word_list, nb_word)
     fake_words = [markov_chain.generate_word_from_queue() for _ in range(nb_fake_word)]
     return real_words, fake_words
 
 
 if __name__ == "__main__":
 
-    word_set = load_word_list("words_alpha.txt")
+    word_set = load_word_list("words_hard.txt")
     mc3 = MarkovChain(word_set, order=3)
     mc2 = MarkovChain(word_set, order=2)
     mc1 = MarkovChain(word_set, order=1)
