@@ -74,7 +74,6 @@ def shuffle_words_difficulty():
         return render_template("error.html", message="Session expired")
     match session["difficulty"]:
         case "easy":
-            app.logger.debug(markov_chain_easy._word_queue.qsize())
             real_words, fake_words = fake_word_generator.fake_and_real_word(
                 markov_chain_easy, word_set, 2, 1
             )
@@ -137,11 +136,9 @@ def gameover():
 @app.route("/submit_word", methods=["POST"])
 def submit_word():
     data = request.get_json()
-    app.logger.debug(data)
     submitted_word = data["word"]
     if submitted_word in session["fake_words"]:
         session["score"] += 1
-        session.pop("fake_words")
         shuffle_words_difficulty()
         return {"count": session["score"], "shuffle_words": shuffle_words_list()}
     elif submitted_word in session["real_words"]:
