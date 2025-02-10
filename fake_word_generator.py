@@ -2,17 +2,28 @@ from collections import defaultdict
 from collections.abc import Callable
 import random
 import markov_c
+from threading import Thread, Lock
+from queue import Queue, Full
+import time
 
 
 class MarkovChain:
-    def __init__(self, word_set: set, order: int = 2):
-        """
-        Initialize the Markov chain with a list of words and an order (default is 2).
-        """
+
+    def __init__(self, word_set: set, order: int = 2, buffer_size: int = 1000):
         self.order = order
         self.transitions = defaultdict(list)
         self.word_set = word_set
+        self.buffer_size = buffer_size
+        self._word_queue = Queue(maxsize=buffer_size)
+        self._running = True
+        self._lock = Lock()
+
+        # Build transitions first
         self.build_transitions(word_set)
+
+        # Start background thread
+        self._refill_thread = Thread(target=self._background_refill, daemon=True)
+        self._refill_thread.start()
 
     def build_transitions(self, word_set: set):
         """
@@ -30,7 +41,32 @@ class MarkovChain:
         trans = ["".join(chars) for chars in self.transitions.values()]
 
         # Load transitions into C module
-        markov_c.load_transitions(states, trans)
+        #with self._lock:
+        markov_c.load_transitions(states, trans, self.order)
+        print("Transitions loaded " + str(self.order))
+
+    def _background_refill(self):
+        """Background thread that keeps the buffer full"""
+        while self._running:
+            current_size = self._word_queue.qsize()
+
+            # Start refilling when buffer is half empty
+            if current_size < self.buffer_size // 2:
+                to_generate = self.buffer_size - current_size
+
+                with self._lock:
+                    new_words = markov_c.generate_multiple_words(to_generate)
+                valid_words = [w for w in new_words if w not in self.word_set]
+
+                # Add words to queue without blocking
+                for word in valid_words:
+                    try:
+                        self._word_queue.put_nowait(word)
+                    except Full:
+                        break
+
+            # Small sleep to prevent busy waiting
+            time.sleep(0.001)
 
     def generate_word(self, max_length: int = 10):
         """
@@ -48,13 +84,16 @@ class MarkovChain:
         # Remove the start markers and return the generated word
         return word[self.order :]
 
-    def generated_fake_word(self, generate_word_func: Callable[[int], str] = generate_word):
+    def generate_word_from_c(self):
+        return self._word_queue.get()
+
+    def generate_fake_word(self):
         """
         Generate a fake word that is not in the input word list.
         """
         fake_word_in_word_list = True
         while fake_word_in_word_list:
-            fake_word = generate_word_func()
+            fake_word = self.generate_word()
             if fake_word not in self.word_set:
                 fake_word_in_word_list = False
         return fake_word
@@ -69,8 +108,16 @@ class MarkovChain:
         transitions = ["".join(chars) for chars in self.transitions.values()]
         return states, transitions
 
-    def generate_word_from_c(self):
-        return markov_c.generate_word()
+    def generate_multiple_words_from_c(self, nb_words: int):
+        return markov_c.generate_multiple_words(nb_words)
+
+    def __del__(self):
+        self._running = False
+        if hasattr(self, "_refill_thread"):
+            self._refill_thread.join(timeout=1.0)
+        with self._lock:
+            markov_c.cleanup()
+
 
 def load_word_list(file_path: str):
     """
@@ -87,15 +134,22 @@ def fake_and_real_word(
     Generate a list of fake and real words.
     """
     real_words = random.sample(sorted(word_set), nb_word)
-    fake_words = [markov_chain.generated_fake_word() for _ in range(nb_fake_word)]
+    fake_words = [markov_chain.generate_word_from_c() for _ in range(nb_fake_word)]
     return real_words, fake_words
 
 
 if __name__ == "__main__":
 
     word_set = load_word_list("words_alpha.txt")
-    mc = MarkovChain(word_set, order=3)
+    # mc3 = MarkovChain(word_set, order=3)
+    mc3 = MarkovChain(word_set, order=2)
+    # mc1 = MarkovChain(word_set, order=1)
 
     for _ in range(5):
-        print("C generated:", mc.generate_fake_word_from_c())
-        print("Python generated:", mc.generated_fake_word())
+        # print("Order 3 generated:", mc3.generate_word_from_c())
+        print("Order 2 generated:", mc3.generate_multiple_words_from_c(1))
+        # print("Order 1 generated:", mc1.generate_word_from_c())
+
+        # Print generated words
+        # print("C generated:", mc2.generate_word_from_c())
+        # print("Python generated:", mc2.generate_fake_word())

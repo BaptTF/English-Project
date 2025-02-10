@@ -132,7 +132,7 @@ static PyObject* load_transitions(PyObject* self, PyObject* args) {
 	PyObject* states_list;
 	PyObject* trans_list;
 
-	if (!PyArg_ParseTuple(args, "OO", &states_list, &trans_list)) {
+	if (!PyArg_ParseTuple(args, "OOi", &states_list, &trans_list)) {
 		return NULL;
 	}
 

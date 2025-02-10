@@ -82,6 +82,7 @@ def shuffle_words_difficulty():
             real_words, fake_words = fake_word_generator.fake_and_real_word(
                 markov_chain_hard, word_set, 2, 1
             )
+    app.logger.debug(fake_words)
     session["fake_words"] = fake_words
     session["real_words"] = real_words
 

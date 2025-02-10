@@ -19,13 +19,13 @@ def benchmark_generation(markov_chain : fake_word_generator.MarkovChain, iterati
     for _ in range(iterations):
         # Benchmark Python generation.
         start = time.perf_counter()
-        markov_chain.generated_fake_word(markov_chain.generate_word)
+        markov_chain.generate_fake_word(markov_chain.generate_word)
         end = time.perf_counter()
         python_times.append(end - start)
 
         # Benchmark C generation.
         start = time.perf_counter()
-        markov_chain.generated_fake_word(markov_chain.generate_word_from_c)
+        markov_chain.generate_word_from_c()
         end = time.perf_counter()
         c_times.append(end - start)
 
@@ -35,6 +35,7 @@ def benchmark_generation(markov_chain : fake_word_generator.MarkovChain, iterati
     print(f"After {iterations} iterations:")
     print(f"Python generated average time: {avg_python:.8f} seconds")
     print(f"C generated average time: {avg_c:.8f} seconds")
+    print(f'C is {avg_python / avg_c:.2f} times faster than Python')
 
 
 # Example usage:
@@ -43,5 +44,8 @@ if __name__ == "__main__":
     word_set = fake_word_generator.load_word_list("words_alpha.txt")
     mc = fake_word_generator.MarkovChain(word_set, order=3)
 
+    print("Warming up...")
+    time.sleep(10)
+    print("Benchmarking...")
     # Run the benchmark.
     benchmark_generation(mc, iterations=100000)
