@@ -23,7 +23,7 @@ function addEventListeners() {
                         gameOver();
                     } else {
                         updateCounts();
-                        fetchNewWords();
+                        displayWords(data);
                     }
                 })
                 .catch(error => console.error('Error submitting word:', error));
@@ -31,23 +31,28 @@ function addEventListeners() {
     });
 }
 
+function displayWords(data) {
+    if (data.shuffle_words) {
+        const wordContainer = document.getElementById('wordContainer');
+        wordContainer.innerHTML = '';
+        data.shuffle_words.forEach(word => {
+            const button = document.createElement('button');
+            button.textContent = word;
+            button.className = 'word fade-in';
+            wordContainer.appendChild(button);
+        });
+        addEventListeners();
+    } else {
+        console.error('shuffle_words is undefined in the response data');
+    }
+}
+
+
 function fetchNewWords() {
     fetch('/shuffle_words')
         .then(response => response.json())
         .then(data => {
-            if (data.shuffle_words) {
-                const wordContainer = document.getElementById('wordContainer');
-                wordContainer.innerHTML = '';
-                data.shuffle_words.forEach(word => {
-                    const button = document.createElement('button');
-                    button.textContent = word;
-                    button.className = 'word fade-in';
-                    wordContainer.appendChild(button);
-                });
-                addEventListeners();
-            } else {
-                console.error('shuffle_words is undefined in the response data');
-            }
+            displayWords(data);
         })
         .catch(error => console.error('Error fetching new words:', error));
 }

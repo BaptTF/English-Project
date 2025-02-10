@@ -54,6 +54,9 @@ def game(difficulty: str):
 
 @app.route("/shuffle_words")
 def shuffle_words():
+    return {"shuffle_words": shuffle_words_list()}
+
+def shuffle_words_list():
     if "fake_words" not in session:
         session.clear()
         return {"error": "Session expired"}
@@ -62,7 +65,7 @@ def shuffle_words():
         return {"error": "Session expired"}
     shuffle_words = session["fake_words"] + session["real_words"]
     random.shuffle(shuffle_words)
-    return {"shuffle_words": shuffle_words}
+    return shuffle_words
 
 
 def shuffle_words_difficulty():
@@ -71,6 +74,7 @@ def shuffle_words_difficulty():
         return render_template("error.html", message="Session expired")
     match session["difficulty"]:
         case "easy":
+            app.logger.debug(markov_chain_easy._word_queue.qsize())
             real_words, fake_words = fake_word_generator.fake_and_real_word(
                 markov_chain_easy, word_set, 2, 1
             )
@@ -82,7 +86,6 @@ def shuffle_words_difficulty():
             real_words, fake_words = fake_word_generator.fake_and_real_word(
                 markov_chain_hard, word_set, 2, 1
             )
-    app.logger.debug(fake_words)
     session["fake_words"] = fake_words
     session["real_words"] = real_words
 
@@ -140,7 +143,7 @@ def submit_word():
         session["score"] += 1
         session.pop("fake_words")
         shuffle_words_difficulty()
-        return {"score": session["score"]}
+        return {"score": session["score"], "shuffle_words": shuffle_words_list()} 
     elif submitted_word in session["real_words"]:
         session["score"]
         if "start_time" in session:
