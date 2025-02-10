@@ -1,7 +1,7 @@
 from collections import defaultdict
 from collections.abc import Callable
-import ctypes
 import random
+import markov_c
 
 
 class MarkovChain:
@@ -12,38 +12,25 @@ class MarkovChain:
         self.order = order
         self.transitions = defaultdict(list)
         self.word_set = word_set
-        # Load the C library
-        self.markov_lib = ctypes.CDLL("./fake_word_generator_lib.so")
-        # Set the argument types.
-        self.markov_lib.load_transitions_from_python.argtypes = [
-            ctypes.POINTER(ctypes.c_char_p),  # states array
-            ctypes.POINTER(ctypes.c_char_p),  # transitions array
-            ctypes.c_int                      # number of entries
-        ]
-        self.markov_lib.load_wordset_from_python.argtypes = [
-            ctypes.POINTER(ctypes.c_char_p),  # word set array
-            ctypes.c_int                      # number of words
-        ]
-        # Note: Use POINTER(ctypes.c_char) for a mutable buffer.
-        self.markov_lib.generate_word.argtypes = [ctypes.POINTER(ctypes.c_char)]
-        self.markov_lib.generate_word.restype = None
         self.build_transitions(word_set)
-        self.load_markov_into_c()
-        # Load the same real word set into C so that generated words not in this set are considered fake.
-        self.load_wordset_into_c(word_set)
 
     def build_transitions(self, word_set: set):
         """
         Build the transition probabilities based on the input word list.
         """
         for word in word_set:
-            # Pad the word with start and end markers
             padded_word = "^" * self.order + word + "$"
             for i in range(len(padded_word) - self.order):
-                # Get the current state (sequence of characters) and the next character
                 state = padded_word[i : i + self.order]
                 next_char = padded_word[i + self.order]
                 self.transitions[state].append(next_char)
+
+        # Convert transitions to format expected by C module
+        states = list(self.transitions.keys())
+        trans = ["".join(chars) for chars in self.transitions.values()]
+
+        # Load transitions into C module
+        markov_c.load_transitions(states, trans)
 
     def generate_word(self, max_length: int = 10):
         """
@@ -83,22 +70,7 @@ class MarkovChain:
         return states, transitions
 
     def generate_word_from_c(self):
-        buffer = ctypes.create_string_buffer(10 + 1)
-        self.markov_lib.generate_word(buffer)
-        return buffer.value.decode("utf-8")
-
-    def load_markov_into_c(self):
-        states, transitions = self.export_transitions()
-        states_c = (ctypes.c_char_p * len(states))(*[s.encode("utf-8") for s in states])
-        transitions_c = (ctypes.c_char_p * len(transitions))(
-            *[t.encode("utf-8") for t in transitions]
-        )
-        self.markov_lib.load_transitions_from_python(states_c, transitions_c, len(states))
-
-    def load_wordset_into_c(self, word_set: set):
-        words = list(word_set)
-        words_c = (ctypes.c_char_p * len(words))(*[w.encode("utf-8") for w in words])
-        self.markov_lib.load_wordset_from_python(words_c, len(words))
+        return markov_c.generate_word()
 
 def load_word_list(file_path: str):
     """

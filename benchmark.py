@@ -44,4 +44,4 @@ if __name__ == "__main__":
     mc = fake_word_generator.MarkovChain(word_set, order=3)
 
     # Run the benchmark.
-    benchmark_generation(mc, iterations=1000000)
+    benchmark_generation(mc, iterations=100000)
