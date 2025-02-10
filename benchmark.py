@@ -14,38 +14,38 @@ def benchmark_generation(markov_chain : fake_word_generator.MarkovChain, iterati
         The average generation time (in seconds) for Python and C.
     """
     python_times = []
-    c_times = []
+    queue_times = []
 
     for _ in range(iterations):
         # Benchmark Python generation.
         start = time.perf_counter()
-        markov_chain.generate_fake_word(markov_chain.generate_word)
+        markov_chain.generate_fake_word()
         end = time.perf_counter()
         python_times.append(end - start)
 
-        # Benchmark C generation.
+        # Benchmark Queue generation.
         start = time.perf_counter()
-        markov_chain.generate_word_from_c()
+        markov_chain.generate_word_from_queue()
         end = time.perf_counter()
-        c_times.append(end - start)
+        queue_times.append(end - start)
 
     avg_python = statistics.mean(python_times)
-    avg_c = statistics.mean(c_times)
+    avg_queue = statistics.mean(queue_times)
 
     print(f"After {iterations} iterations:")
     print(f"Python generated average time: {avg_python:.8f} seconds")
-    print(f"C generated average time: {avg_c:.8f} seconds")
-    print(f'C is {avg_python / avg_c:.2f} times faster than Python')
+    print(f"Queue generated average time: {avg_queue:.8f} seconds")
+    print(f"Queue is {avg_python / avg_queue:.2f} times faster than Python")
 
 
 # Example usage:
 if __name__ == "__main__":
     # Assume your library is loaded and the MarkovChain is defined as shown in previous code.
     word_set = fake_word_generator.load_word_list("words_alpha.txt")
-    mc = fake_word_generator.MarkovChain(word_set, order=3)
+    mc = fake_word_generator.MarkovChain(word_set, order=2)
 
     print("Warming up...")
     time.sleep(10)
     print("Benchmarking...")
     # Run the benchmark.
-    benchmark_generation(mc, iterations=100000)
+    benchmark_generation(mc, iterations=100)

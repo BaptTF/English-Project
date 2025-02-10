@@ -1,7 +1,6 @@
 from collections import defaultdict
 from collections.abc import Callable
 import random
-import markov_c
 from threading import Thread, Lock
 from queue import Queue, Full
 import time
@@ -40,10 +39,6 @@ class MarkovChain:
         states = list(self.transitions.keys())
         trans = ["".join(chars) for chars in self.transitions.values()]
 
-        # Load transitions into C module
-        #with self._lock:
-        markov_c.load_transitions(states, trans, self.order)
-        print("Transitions loaded " + str(self.order))
 
     def _background_refill(self):
         """Background thread that keeps the buffer full"""
@@ -55,7 +50,7 @@ class MarkovChain:
                 to_generate = self.buffer_size - current_size
 
                 with self._lock:
-                    new_words = markov_c.generate_multiple_words(to_generate)
+                    new_words = self.generate_multiple_words(to_generate)
                 valid_words = [w for w in new_words if w not in self.word_set]
 
                 # Add words to queue without blocking
@@ -84,7 +79,7 @@ class MarkovChain:
         # Remove the start markers and return the generated word
         return word[self.order :]
 
-    def generate_word_from_c(self):
+    def generate_word_from_queue(self):
         return self._word_queue.get()
 
     def generate_fake_word(self):
@@ -108,15 +103,13 @@ class MarkovChain:
         transitions = ["".join(chars) for chars in self.transitions.values()]
         return states, transitions
 
-    def generate_multiple_words_from_c(self, nb_words: int):
-        return markov_c.generate_multiple_words(nb_words)
+    def generate_multiple_words(self, nb_words: int):
+        return [self.generate_word() for _ in range(nb_words)] 
 
     def __del__(self):
         self._running = False
         if hasattr(self, "_refill_thread"):
             self._refill_thread.join(timeout=1.0)
-        with self._lock:
-            markov_c.cleanup()
 
 
 def load_word_list(file_path: str):
@@ -134,22 +127,18 @@ def fake_and_real_word(
     Generate a list of fake and real words.
     """
     real_words = random.sample(sorted(word_set), nb_word)
-    fake_words = [markov_chain.generate_word_from_c() for _ in range(nb_fake_word)]
+    fake_words = [markov_chain.generate_word_from_queue() for _ in range(nb_fake_word)]
     return real_words, fake_words
 
 
 if __name__ == "__main__":
 
     word_set = load_word_list("words_alpha.txt")
-    # mc3 = MarkovChain(word_set, order=3)
-    mc3 = MarkovChain(word_set, order=2)
-    # mc1 = MarkovChain(word_set, order=1)
+    mc3 = MarkovChain(word_set, order=3)
+    mc2 = MarkovChain(word_set, order=2)
+    mc1 = MarkovChain(word_set, order=1)
 
     for _ in range(5):
-        # print("Order 3 generated:", mc3.generate_word_from_c())
-        print("Order 2 generated:", mc3.generate_multiple_words_from_c(1))
-        # print("Order 1 generated:", mc1.generate_word_from_c())
-
         # Print generated words
-        # print("C generated:", mc2.generate_word_from_c())
-        # print("Python generated:", mc2.generate_fake_word())
+        print("Queue generated:", mc2.generate_word_from_queue())
+        print("Python generated:", mc2.generate_fake_word())
