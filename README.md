@@ -6,6 +6,6 @@ To test it:
 
 Usage:
 
-gcc -shared -o fake_word_generator_lib.so -fPIC fake_word_generator_lib.c
+python setup.py build_ext --inplace
 
 flask run
