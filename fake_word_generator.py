@@ -8,22 +8,14 @@ import time
 
 class MarkovChain:
 
-    def __init__(self, word_set: set, whole_word_set: set, order: int = 2, buffer_size: int = 1000):
+    def __init__(self, word_set: set, whole_word_set: set, order: int = 2):
         self.order = order
         self.transitions = defaultdict(list)
         self.word_set = word_set
         self.whole_word_set = whole_word_set
-        self.buffer_size = buffer_size
-        self._word_queue = Queue(maxsize=buffer_size)
-        self._running = True
-        self._lock = Lock()
 
         # Build transitions first
         self.build_transitions(word_set)
-
-        # Start background thread
-        self._refill_thread = Thread(target=self._background_refill, daemon=True)
-        self._refill_thread.start()
 
     def build_transitions(self, word_set: set):
         """
@@ -39,29 +31,6 @@ class MarkovChain:
         # Convert transitions to format expected by C module
         states = list(self.transitions.keys())
         trans = ["".join(chars) for chars in self.transitions.values()]
-
-    def _background_refill(self):
-        """Background thread that keeps the buffer full"""
-        while self._running:
-            current_size = self._word_queue.qsize()
-
-            # Start refilling when buffer is half empty
-            if current_size < self.buffer_size // 2:
-                to_generate = self.buffer_size - current_size
-
-                with self._lock:
-                    new_words = self.generate_multiple_words(to_generate)
-                valid_words = [w for w in new_words if w not in self.whole_word_set]
-
-                # Add words to queue without blocking
-                for word in valid_words:
-                    try:
-                        self._word_queue.put_nowait(word)
-                    except Full:
-                        break
-
-            # Small sleep to prevent busy waiting
-            time.sleep(0.001)
 
     def generate_word(self, max_length: int = 10):
         """
@@ -79,9 +48,6 @@ class MarkovChain:
         # Remove the start markers and return the generated word
         return word[self.order :]
 
-    def generate_word_from_queue(self):
-        return self._word_queue.get()
-
     def generate_fake_word(self):
         """
         Generate a fake word that is not in the input word list.
@@ -92,24 +58,6 @@ class MarkovChain:
             if fake_word not in self.whole_word_set:
                 fake_word_in_word_list = False
         return fake_word
-
-    def export_transitions(self):
-        """
-        Convert transitions into C-friendly format:
-        - states: list of strings
-        - transitions: list of concatenated possible next characters
-        """
-        states = list(self.transitions.keys())
-        transitions = ["".join(chars) for chars in self.transitions.values()]
-        return states, transitions
-
-    def generate_multiple_words(self, nb_words: int):
-        return [self.generate_word() for _ in range(nb_words)] 
-
-    def __del__(self):
-        self._running = False
-        if hasattr(self, "_refill_thread"):
-            self._refill_thread.join(timeout=1.0)
 
 
 def load_word_list(file_path: str):
@@ -127,7 +75,7 @@ def fake_and_real_word(
     Generate a list of fake and real words.
     """
     real_words = random.sample(word_list, nb_word)
-    fake_words = [markov_chain.generate_word_from_queue() for _ in range(nb_fake_word)]
+    fake_words = [markov_chain.generate_word() for _ in range(nb_fake_word)]
     return real_words, fake_words
 
 
@@ -140,5 +88,5 @@ if __name__ == "__main__":
 
     for _ in range(5):
         # Print generated words
-        print("Queue generated:", mc2.generate_word_from_queue())
+        print("Queue generated:", mc2.generate_word())
         print("Python generated:", mc2.generate_fake_word())
