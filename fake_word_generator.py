@@ -75,7 +75,7 @@ def fake_and_real_word(
     Generate a list of fake and real words.
     """
     real_words = random.sample(word_list, nb_word)
-    fake_words = [markov_chain.generate_word() for _ in range(nb_fake_word)]
+    fake_words = [markov_chain.generate_fake_word() for _ in range(nb_fake_word)]
     return real_words, fake_words
 
 
